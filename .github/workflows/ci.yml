@@ -1,0 +1,13 @@
+name: ci
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.2.0
+      - run: uv python install 3.13
+      - run: uv venv --python 3.13 && uv pip install -e '.[dev]'
+      - run: uv run pytest
+      - run: uv run ruff check .
+      - run: uv run mypy hw_wallet_cli_spec

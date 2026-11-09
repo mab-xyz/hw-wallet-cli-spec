@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "description": "Common command line of hardware-backed Ethereum signers. A tool conforms when every command lists its required flags, the sign commands print exactly the listed JSON keys, and the removed names are gone. Extra flags and extra commands are allowed.",
+  "commands": {
+    "address": {
+      "flags": ["--device", "--json"],
+      "json_keys": ["address", "pubkey"]
+    },
+    "sign-digest": {
+      "flags": ["--device", "--digest"],
+      "json_keys": ["address", "digest", "signature"]
+    },
+    "sign-tx": {
+      "flags": ["--device", "--tx"],
+      "json_keys": ["address", "digest", "signature", "raw_transaction", "tx_hash"]
+    },
+    "sign-personal": {
+      "flags": ["--device", "--message", "--message-hex", "--message-file"],
+      "json_keys": ["address", "digest", "signature"]
+    },
+    "sign-typed-data": {
+      "flags": ["--device", "--typed-data"],
+      "json_keys": ["address", "digest", "signature", "encoded"]
+    },
+    "attest": {
+      "flags": ["--device", "--out"],
+      "json_keys": ["kind", "address"],
+      "extra_keys": true
+    },
+    "verify": {
+      "flags": ["--cert"],
+      "json_keys": ["kind", "address"],
+      "extra_keys": true
+    }
+  },
+  "kinds": ["yubico-opgp", "tkey-self"],
+  "removed_commands": ["sign-msg", "verify-attestation"],
+  "removed_flags": ["--serial", "--port"]
+}

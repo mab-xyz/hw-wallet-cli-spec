@@ -1,0 +1,31 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "hw-wallet-cli-spec"
+version = "0.1.0"
+description = "Common CLI spec for hardware-backed Ethereum signers (yketh, tkey-eth) and a checker for it"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest", "pytest-cov", "mypy", "ruff"]
+
+[project.scripts]
+hw-wallet-cli-check = "hw_wallet_cli_spec.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["hw_wallet_cli_spec"]
+
+[tool.pytest.ini_options]
+addopts = "-q --cov=hw_wallet_cli_spec"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 110
+
+[tool.mypy]
+strict = true
