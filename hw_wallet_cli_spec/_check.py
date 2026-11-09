@@ -42,7 +42,7 @@ def check_help(cli: list[str], spec: dict[str, Any]) -> list[str]:
     for command, entry in spec["commands"].items():
         rc, flags = run_help(cli, command)
         if rc != 0:
-            gaps.append(f"{command}: `--help` exits {rc}, the command is missing")
+            gaps.append(f"{command}: `--help` exits {rc}, expected 0 (command missing, or --help is treated as an error)")
             continue
         gaps += [f"{command}: missing flag {f}" for f in entry["flags"] if _name(f) not in flags]
         gaps += [f"{command}: removed flag --{f} is still listed" for f in sorted(forbidden & flags)]

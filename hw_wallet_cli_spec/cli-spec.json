@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "description": "Common command line of hardware-backed Ethereum signers. A tool conforms when every command lists its required flags, the sign commands print exactly the listed JSON keys, and the removed names are gone. Extra flags and extra commands are allowed.",
+  "description": "Common command line of hardware-backed Ethereum signers. A tool conforms when `<command> --help` exits 0 and lists the command's required flags, the sign commands print exactly the listed JSON keys, and the removed names are gone. Extra flags and extra commands are allowed.",
   "commands": {
     "address": {
       "flags": ["--device", "--json"],

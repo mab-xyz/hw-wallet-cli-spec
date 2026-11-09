@@ -4,7 +4,7 @@ One command line for hardware-backed Ethereum signers, and a checker that fails 
 
 The spec is [`hw_wallet_cli_spec/cli-spec.json`](hw_wallet_cli_spec/cli-spec.json). A tool conforms when:
 
-- each listed command exists and lists its required flags in `--help`;
+- `<command> --help` exits 0 and lists the command's required flags (a Go `flag` program must treat `flag.ErrHelp` as success);
 - the sign commands print one JSON object with exactly the listed keys (`attest` and `verify` may add keys);
 - the removed command names (`sign-msg`, `verify-attestation`) and flags (`--serial`, `--port`) are gone.
 
