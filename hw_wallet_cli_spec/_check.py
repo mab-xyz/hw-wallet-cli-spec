@@ -73,6 +73,9 @@ def check_golden(directory: Path, spec: dict[str, Any]) -> list[str]:
             gaps.append(f"{command}: missing JSON key(s) {sorted(want - got)}")
         if got - want and not entry.get("extra_keys", False):
             gaps.append(f"{command}: unexpected JSON key(s) {sorted(got - want)}")
+        for key, pattern in spec.get("formats", {}).items():
+            if key in sample and not (isinstance(sample[key], str) and re.fullmatch(pattern, sample[key])):
+                gaps.append(f"{command}: {key} does not match the format {pattern}")
         kind = sample.get("kind")
         if "kind" in want and kind not in spec.get("kinds", []):
             gaps.append(f"{command}: kind {kind!r} is not one of {spec.get('kinds', [])}")

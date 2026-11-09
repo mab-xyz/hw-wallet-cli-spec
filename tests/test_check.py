@@ -89,9 +89,20 @@ def test_unreachable_cli_is_a_gap_not_a_crash(spec: dict[str, Any]) -> None:
     assert all("exits 127" in g for g in gaps)
 
 
+VALID = {
+    "address": "0x" + "a" * 40,
+    "pubkey": "0x" + "b" * 128,
+    "digest": "0x" + "c" * 64,
+    "signature": "0x" + "d" * 128 + "1b",
+    "raw_transaction": "0x02f8",
+    "tx_hash": "0x" + "e" * 64,
+    "encoded": "0x1901" + "f" * 128,
+}
+
+
 def write_golden(tmp_path: Path, spec: dict[str, Any], **override: Any) -> Path:
     for command, entry in spec["commands"].items():
-        sample: Any = {k: "x" for k in entry["json_keys"]}
+        sample: Any = {k: VALID.get(k, "x") for k in entry["json_keys"]}
         if "kind" in sample:
             sample["kind"] = spec["kinds"][0]
         sample = override.get(command, sample)
@@ -104,22 +115,40 @@ def test_golden_known_positive(tmp_path: Path, spec: dict[str, Any]) -> None:
 
 
 def test_golden_missing_and_extra_keys(tmp_path: Path, spec: dict[str, Any]) -> None:
+    ok = {k: VALID[k] for k in ("address", "digest", "signature")}
     d = write_golden(tmp_path, spec, **{
-        "sign-personal": {"address": "x", "digest": "x"},
-        "sign-digest": {"address": "x", "digest": "x", "signature": "x", "v": 1},
+        "sign-personal": {k: ok[k] for k in ("address", "digest")},
+        "sign-digest": {**ok, "v": 1},
     })
     gaps = check_golden(d, spec)
     assert "sign-personal: missing JSON key(s) ['signature']" in gaps
     assert "sign-digest: unexpected JSON key(s) ['v']" in gaps
 
 
+@pytest.mark.parametrize(("key", "bad"), [
+    ("signature", "0x" + "d" * 128 + "00"),   # v = 0, go-ethereum style: ecrecover rejects it
+    ("signature", "0x" + "d" * 128 + "1d"),   # v = 29
+    ("signature", "0x" + "d" * 128),          # 64 bytes, no v
+    ("digest", "0x" + "C" * 64),              # uppercase hex
+    ("digest", "c" * 64),                     # no 0x
+    ("digest", 12),                           # not a string
+    ("pubkey", "0x04" + "b" * 128),           # SEC1 prefix kept
+    ("encoded", "\x19\x01raw bytes"),         # Go's lossy string form
+])
+def test_golden_wrong_format(tmp_path: Path, spec: dict[str, Any], key: str, bad: Any) -> None:
+    command = "address" if key == "pubkey" else "sign-typed-data" if key == "encoded" else "sign-digest"
+    sample = {k: VALID[k] for k in spec["commands"][command]["json_keys"]} | {key: bad}
+    gaps = check_golden(write_golden(tmp_path, spec, **{command: sample}), spec)
+    assert gaps == [f"{command}: {key} does not match the format {spec['formats'][key]}"]
+
+
 def test_golden_extra_keys_allowed_where_spec_says_so(tmp_path: Path, spec: dict[str, Any]) -> None:
-    d = write_golden(tmp_path, spec, attest={"kind": "tkey-self", "address": "x", "cert": "..."})
+    d = write_golden(tmp_path, spec, attest={"kind": "tkey-self", "address": VALID["address"], "cert": "..."})
     assert check_golden(d, spec) == []
 
 
 def test_golden_unknown_kind(tmp_path: Path, spec: dict[str, Any]) -> None:
-    d = write_golden(tmp_path, spec, verify={"kind": "mystery", "address": "x"})
+    d = write_golden(tmp_path, spec, verify={"kind": "mystery", "address": VALID["address"]})
     assert any(g.startswith("verify: kind 'mystery'") for g in check_golden(d, spec))
 
 

@@ -24,6 +24,7 @@ Extra flags and commands are allowed (`--path` and `--uss-file` on `tkey-eth`, `
 
 - `--device` selects the device: a YubiKey serial number, or a TKey serial port.
 - The `sign-*` commands always print JSON. On failure nothing goes to stdout, the message goes to stderr, and the exit code is 1.
+- Formats (checked on golden samples): `address` and `tx_hash` as in Ethereum; `pubkey` is `0x` + X‖Y, 64 bytes, no `0x04` prefix; `digest` is `0x` + 32 bytes; `signature` is `0x` + r‖s‖v, 65 bytes, low s, **v = 27 or 28** (what `ecrecover` and OpenZeppelin expect, not go-ethereum's raw 0/1), also for `sign-tx`, whose `raw_transaction` carries the transaction's own v; `encoded` is `0x1901` ‖ domainSeparator ‖ hashStruct(message) as hex. Hex is lowercase.
 - `kind` is `yubico-opgp` (Yubico PKI chain) or `tkey-self` (self-asserted certificate). The two proofs differ in strength, so a verifier must read `kind`.
 
 ## Check a CLI

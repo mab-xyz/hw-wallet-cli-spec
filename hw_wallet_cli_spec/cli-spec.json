@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "description": "Common command line of hardware-backed Ethereum signers. A tool conforms when `<command> --help` exits 0 and lists the command's required flags, the sign commands print exactly the listed JSON keys, and the removed names are gone. Extra flags and extra commands are allowed.",
+  "description": "Common command line of hardware-backed Ethereum signers. A tool conforms when `<command> --help` exits 0 and lists the command's required flags, the sign commands print exactly the listed JSON keys with the listed formats, and the removed names are gone. `pubkey` is X||Y without the 0x04 prefix; `signature` is r||s||v with low s and v 27 or 28 (what ecrecover and OpenZeppelin expect), also for sign-tx, whose raw_transaction carries the transaction's own v; `encoded` is 0x1901 || domainSeparator || hashStruct(message) as hex. Extra flags and extra commands are allowed.",
   "commands": {
     "address": {
       "flags": ["--device", "--json"],
@@ -32,6 +32,15 @@
       "json_keys": ["kind", "address"],
       "extra_keys": true
     }
+  },
+  "formats": {
+    "address": "0x[0-9a-fA-F]{40}",
+    "pubkey": "0x[0-9a-f]{128}",
+    "digest": "0x[0-9a-f]{64}",
+    "signature": "0x[0-9a-f]{128}1[bc]",
+    "raw_transaction": "0x([0-9a-f]{2})+",
+    "tx_hash": "0x[0-9a-f]{64}",
+    "encoded": "0x1901[0-9a-f]{128}"
   },
   "kinds": ["yubico-opgp", "tkey-self"],
   "removed_commands": ["sign-msg", "verify-attestation"],
